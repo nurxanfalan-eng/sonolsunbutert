@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#833AB4" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="InstaDown" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="description" content="Instagram videolarını HD keyfiyyətdə, logo olmadan endirin" />
+
+  <title>InstaDown – Instagram HD Video Endirici</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --grad: linear-gradient(135deg, #833AB4, #FD1D1D, #FCB045);
+      --card: #1a1a2e;
+      --bg: #0f0f1a;
+      --text: #ffffff;
+      --sub: #a0a0c0;
+      --accent: #c13584;
+      --success: #00d084;
+      --radius: 18px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* ---- HEADER ---- */
+    header {
+      width: 100%;
+      padding: 20px 24px 16px;
+      background: linear-gradient(180deg, rgba(131,58,180,.3) 0%, transparent 100%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: var(--grad);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header p {
+      font-size: 11px;
+      color: var(--sub);
+      margin-top: 1px;
+    }
+
+    /* ---- INSTALL BANNER ---- */
+    #install-banner {
+      display: none;
+      width: calc(100% - 32px);
+      max-width: 600px;
+      margin: 8px 0;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #1a1a3e, #2a1a4e);
+      border: 1px solid rgba(131,58,180,.4);
+      border-radius: 14px;
+      align-items: center;
+      gap: 12px;
+      animation: slideIn .3s ease;
+    }
+
+    #install-banner.show { display: flex; }
+
+    #install-banner .install-icon { font-size: 28px; flex-shrink: 0; }
+
+    #install-banner .install-text strong {
+      display: block;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    #install-banner .install-text span {
+      font-size: 11px;
+      color: var(--sub);
+    }
+
+    #install-btn {
+      margin-left: auto;
+      flex-shrink: 0;
+      background: var(--grad);
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #dismiss-btn {
+      background: none;
+      border: none;
+      color: var(--sub);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    /* ---- MAIN CARD ---- */
+    main {
+      width: 100%;
+      max-width: 640px;
+      padding: 0 16px 32px;
+      flex: 1;
+    }
+
+    /* Gradient glow line */
+    .glow-line {
+      width: 80px; height: 4px;
+      background: var(--grad);
+      border-radius: 99px;
+      margin: 24px auto 28px;
+    }
+
+    /* ---- INPUT AREA ---- */
+    .input-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(131,58,180,.25);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+
+    .input-card label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--sub);
+      margin-bottom: 10px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #url-input {
+      flex: 1;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    #url-input::placeholder { color: var(--sub); }
+    #url-input:focus { border-color: var(--accent); }
+
+    #paste-btn {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      color: #fff;
+      padding: 0 16px;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    #paste-btn:hover { background: rgba(255,255,255,.14); }
+
+    #fetch-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 15px;
+      background: var(--grad);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s, transform .1s;
+    }
+    #fetch-btn:hover { opacity: .92; }
+    #fetch-btn:active { transform: scale(.98); }
+    #fetch-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ---- STATUS ---- */
+    #status {
+      display: none;
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    #status.loading {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: rgba(131,58,180,.15);
+      border: 1px solid rgba(131,58,180,.3);
+      color: #c084fc;
+    }
+    #status.error {
+      display: block;
+      background: rgba(239,68,68,.12);
+      border: 1px solid rgba(239,68,68,.3);
+      color: #fca5a5;
+    }
+    #status.success {
+      display: block;
+      background: rgba(0,208,132,.1);
+      border: 1px solid rgba(0,208,132,.25);
+      color: var(--success);
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(192,132,252,.3);
+      border-top-color: #c084fc;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* ---- RESULT CARD ---- */
+    #result {
+      display: none;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(131,58,180,.25);
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      animation: fadeUp .4s ease;
+    }
+
+    #result.show { display: block; }
+
+    .video-wrapper {
+      position: relative;
+      background: #000;
+      aspect-ratio: 9/16;
+      max-height: 75vh;
+      overflow: hidden;
+    }
+
+    @media (min-width: 500px) {
+      .video-wrapper { aspect-ratio: 16/9; }
+    }
+
+    #video-player {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    #video-thumbnail {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,.35);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .play-overlay:hover { background: rgba(0,0,0,.2); }
+
+    .play-btn-big {
+      width: 64px; height: 64px;
+      background: rgba(255,255,255,.9);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+
+    .play-btn-big svg {
+      width: 28px; height: 28px;
+      fill: #111;
+      margin-left: 4px;
+    }
+
+    .result-info {
+      padding: 16px 18px 8px;
+    }
+
+    .result-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0,208,132,.12);
+      border: 1px solid rgba(0,208,132,.25);
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .result-actions {
+      padding: 12px 16px 18px;
+      display: flex;
+      gap: 10px;
+    }
+
+    #download-btn {
+      flex: 1;
+      padding: 14px;
+      background: var(--grad);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s, transform .1s;
+    }
+    #download-btn:hover { opacity: .9; }
+    #download-btn:active { transform: scale(.98); }
+    #download-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    #copy-btn {
+      padding: 14px 18px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .2s;
+      white-space: nowrap;
+    }
+    #copy-btn:hover { background: rgba(255,255,255,.14); }
+
+    /* Download progress bar */
+    #dl-progress {
+      display: none;
+      margin: 0 16px 12px;
+    }
+    #dl-progress.show { display: block; }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,.1);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--grad);
+      border-radius: 99px;
+      width: 0%;
+      transition: width .2s;
+    }
+
+    .progress-text {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--sub);
+      text-align: center;
+    }
+
+    /* ---- FEATURES ---- */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .feature-item {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.06);
+      padding: 16px 10px;
+      text-align: center;
+    }
+
+    .feature-item .f-icon { font-size: 22px; margin-bottom: 6px; }
+    .feature-item .f-title { font-size: 12px; font-weight: 600; color: #ddd; }
+    .feature-item .f-sub { font-size: 10px; color: var(--sub); margin-top: 2px; }
+
+    /* ---- HOW TO ---- */
+    .howto {
+      margin-top: 20px;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.06);
+      padding: 18px;
+    }
+
+    .howto h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--sub);
+      margin-bottom: 14px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .step:last-child { margin-bottom: 0; }
+
+    .step-num {
+      width: 24px; height: 24px;
+      background: var(--grad);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text { font-size: 13px; color: #ccc; line-height: 1.4; }
+
+    /* ---- FOOTER ---- */
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 11px;
+      color: var(--sub);
+      border-top: 1px solid rgba(255,255,255,.05);
+      margin-top: 8px;
+    }
+
+    /* ---- ANIMATIONS ---- */
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- iOS INSTALL MODAL ---- */
+    #ios-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,.7);
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    #ios-modal.show { display: flex; }
+
+    .ios-modal-inner {
+      background: #1a1a2e;
+      border-radius: 20px;
+      border: 1px solid rgba(131,58,180,.4);
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      animation: fadeUp .3s ease;
+    }
+
+    .ios-modal-inner h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .ios-step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      font-size: 13px;
+      color: #ccc;
+    }
+    .ios-step:last-of-type { border-bottom: none; }
+
+    .ios-step-icon { font-size: 22px; flex-shrink: 0; }
+
+    #close-ios-modal {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.1);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-icon">📸</div>
+    <div>
+      <h1>InstaDown</h1>
+      <p>Instagram HD Video Endirici</p>
+    </div>
+  </header>
+
+  <!-- INSTALL BANNER -->
+  <div id="install-banner">
+    <div class="install-icon">📲</div>
+    <div class="install-text">
+      <strong>Ana ekrana əlavə et</strong>
+      <span>Tez giriş üçün yükle</span>
+    </div>
+    <button id="install-btn" onclick="handleInstall()">Yüklə</button>
+    <button id="dismiss-btn" onclick="dismissInstall()" title="Bağla">✕</button>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+    <div class="glow-line"></div>
+
+    <!-- INPUT CARD -->
+    <div class="input-card">
+      <label>📎 Instagram linki yapışdır</label>
+      <div class="input-row">
+        <input
+          id="url-input"
+          type="url"
+          inputmode="url"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="https://www.instagram.com/reel/..."
+        />
+        <button id="paste-btn" onclick="pasteFromClipboard()">
+          📋 Yapışdır
+        </button>
+      </div>
+      <button id="fetch-btn" onclick="fetchVideo()">
+        <span id="fetch-btn-text">🔍 Videonu tap</span>
+      </button>
+    </div>
+
+    <!-- STATUS -->
+    <div id="status"></div>
+
+    <!-- RESULT CARD -->
+    <div id="result">
+      <div class="video-wrapper" id="video-wrapper">
+        <img id="video-thumbnail" src="" alt="Thumbnail" />
+        <video id="video-player" controls playsinline preload="metadata" style="display:none"></video>
+        <div class="play-overlay" id="play-overlay" onclick="playVideo()">
+          <div class="play-btn-big">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-info">
+        <div class="result-title" id="video-title">Instagram Video</div>
+        <div class="result-badge" style="margin-top:8px">
+          ✅ HD • Logo yoxdur • Keyfiyyət itkisi yoxdur
+        </div>
+      </div>
+
+      <!-- Download progress -->
+      <div id="dl-progress">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">Endirilir...</div>
+      </div>
+
+      <div class="result-actions">
+        <button id="download-btn" onclick="downloadVideo()">
+          ⬇️ HD Endir
+        </button>
+        <button id="copy-btn" onclick="copyLink()">
+          🔗 Link
+        </button>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <div class="feature-item">
+        <div class="f-icon">🎬</div>
+        <div class="f-title">HD Keyfiyyət</div>
+        <div class="f-sub">Orijinal kimi</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">🚫</div>
+        <div class="f-title">Logo Yoxdur</div>
+        <div class="f-sub">Watermark-sız</div>
+      </div>
+      <div class="feature-item">
+        <div class="f-icon">⚡</div>
+        <div class="f-title">Sürətli</div>
+        <div class="f-sub">Saniyələrdə</div>
+      </div>
+    </div>
+
+    <!-- HOW TO -->
+    <div class="howto">
+      <h3>📖 Necə istifadə etmeli</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Instagram-da videonu aç, paylaş düyməsinə bas → "Linki kopyala"</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Yuxarıdakı xanaya linki yapışdır</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">"Videonu tap" düyməsinə bas</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">"HD Endir" düyməsinə bas → video qalereyaya düşür ✅</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- iOS INSTALL MODAL -->
+  <div id="ios-modal">
+    <div class="ios-modal-inner">
+      <h3>📲 Ana ekrana əlavə et</h3>
+      <div class="ios-step">
+        <span class="ios-step-icon">1️⃣</span>
+        <span>Altdakı paylaş düyməsinə bas <strong>⎙</strong></span>
+      </div>
+      <div class="ios-step">
+        <span class="ios-step-icon">2️⃣</span>
+        <span>"Ana ekrana əlavə et" seç <strong>＋</strong></span>
+      </div>
+      <div class="ios-step">
+        <span class="ios-step-icon">3️⃣</span>
+        <span>"Əlavə et" düyməsinə bas</span>
+      </div>
+      <button id="close-ios-modal" onclick="closeIosModal()">Anladım ✓</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    © 2024 InstaDown · Yalnız şəxsi istifadə üçün
+  </footer>
+
+  <script>
+    // ---- State ----
+    let currentVideoUrl = null;
+    let currentTitle = 'instagram_video';
+    let deferredPrompt = null;
+    let isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    let isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+
+    // ---- PWA Install ----
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!isStandalone && !localStorage.getItem('installDismissed')) {
+        document.getElementById('install-banner').classList.add('show');
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      document.getElementById('install-banner').classList.remove('show');
+      deferredPrompt = null;
+    });
+
+    // Show iOS banner on iOS if not standalone
+    window.addEventListener('DOMContentLoaded', () => {
+      if (isIOS && !isStandalone && !localStorage.getItem('installDismissed')) {
+        document.getElementById('install-banner').classList.add('show');
+        document.getElementById('install-btn').textContent = 'Necə?';
+      }
+      
+      // Restore last URL if any
+      const lastUrl = sessionStorage.getItem('lastUrl');
+      if (lastUrl) {
+        document.getElementById('url-input').value = lastUrl;
+      }
+    });
+
+    function handleInstall() {
+      if (isIOS) {
+        document.getElementById('ios-modal').classList.add('show');
+        return;
+      }
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((c) => {
+          deferredPrompt = null;
+          document.getElementById('install-banner').classList.remove('show');
+        });
+      }
+    }
+
+    function dismissInstall() {
+      document.getElementById('install-banner').classList.remove('show');
+      localStorage.setItem('installDismissed', '1');
+    }
+
+    function closeIosModal() {
+      document.getElementById('ios-modal').classList.remove('show');
+    }
+
+    // ---- Paste from clipboard ----
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.includes('instagram.com')) {
+          document.getElementById('url-input').value = text.trim();
+          showStatus('Link yapışdırıldı ✓', 'success');
+          setTimeout(() => fetchVideo(), 300);
+        } else if (text) {
+          document.getElementById('url-input').value = text.trim();
+        } else {
+          showStatus('Panoda link tapılmadı', 'error');
+        }
+      } catch (e) {
+        document.getElementById('url-input').focus();
+        showStatus('Yapışdırmaq üçün xananı seçin', 'error');
+      }
+    }
+
+    // ---- Fetch video info ----
+    async function fetchVideo() {
+      const url = document.getElementById('url-input').value.trim();
+      if (!url) {
+        showStatus('❌ Zəhmət olmasa link daxil edin', 'error');
+        return;
+      }
+      if (!url.includes('instagram.com')) {
+        showStatus('❌ Yalnız Instagram linkləri dəstəklənir', 'error');
+        return;
+      }
+
+      sessionStorage.setItem('lastUrl', url);
+
+      setFetchLoading(true);
+      showStatus('🔍 Video axtarılır...', 'loading');
+      document.getElementById('result').classList.remove('show');
+
+      try {
+        const resp = await fetch('/api/fetch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+
+        const data = await resp.json();
+
+        if (!data.success || !data.videoUrl) {
+          showStatus('❌ ' + (data.error || 'Video tapılmadı'), 'error');
+          setFetchLoading(false);
+          return;
+        }
+
+        currentVideoUrl = data.videoUrl;
+        currentTitle = (data.title || 'instagram_video')
+          .replace(/[^a-zA-Z0-9\-_ğüşiöçəİĞÜŞÖÇƏ ]/g, '')
+          .replace(/\s+/g, '_')
+          .substring(0, 40) || 'instagram_video';
+
+        // Show thumbnail
+        const thumbnail = document.getElementById('video-thumbnail');
+        const player = document.getElementById('video-player');
+        const overlay = document.getElementById('play-overlay');
+
+        if (data.thumbnail) {
+          thumbnail.src = '/api/thumb?url=' + encodeURIComponent(data.thumbnail);
+          thumbnail.style.display = 'block';
+        } else {
+          thumbnail.style.display = 'none';
+        }
+
+        player.style.display = 'none';
+        player.src = '';
+        overlay.style.display = 'flex';
+
+        document.getElementById('video-title').textContent = data.title || 'Instagram Video';
+        document.getElementById('result').classList.add('show');
+
+        showStatus('✅ Video tapıldı! Endirmək üçün düyməyə bas.', 'success');
+      } catch (e) {
+        showStatus('❌ Xəta baş verdi: ' + e.message, 'error');
+      }
+
+      setFetchLoading(false);
+    }
+
+    // ---- Play inline ----
+    function playVideo() {
+      if (!currentVideoUrl) return;
+      const player = document.getElementById('video-player');
+      const thumbnail = document.getElementById('video-thumbnail');
+      const overlay = document.getElementById('play-overlay');
+
+      player.src = '/api/stream?url=' + encodeURIComponent(currentVideoUrl);
+      player.style.display = 'block';
+      thumbnail.style.display = 'none';
+      overlay.style.display = 'none';
+      player.play().catch(() => {});
+    }
+
+    // ---- Download ----
+    async function downloadVideo() {
+      if (!currentVideoUrl) return;
+
+      const btn = document.getElementById('download-btn');
+      const progressEl = document.getElementById('dl-progress');
+      const fill = document.getElementById('progress-fill');
+      const progressText = document.getElementById('progress-text');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Endirilir...';
+      progressEl.classList.add('show');
+      fill.style.width = '5%';
+      progressText.textContent = 'Başlanır...';
+
+      try {
+        const streamUrl = '/api/stream?url=' + encodeURIComponent(currentVideoUrl)
+          + '&filename=' + encodeURIComponent(currentTitle + '.mp4');
+
+        // Use fetch with ReadableStream to track progress
+        const response = await fetch(streamUrl);
+
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        const contentLength = response.headers.get('Content-Length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+
+        const reader = response.body.getReader();
+        const chunks = [];
+        let received = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+
+          if (total > 0) {
+            const pct = Math.min(95, Math.round((received / total) * 100));
+            fill.style.width = pct + '%';
+            progressText.textContent = `${formatBytes(received)} / ${formatBytes(total)} (${pct}%)`;
+          } else {
+            fill.style.width = '60%';
+            progressText.textContent = `${formatBytes(received)} endirildi...`;
+          }
+        }
+
+        fill.style.width = '100%';
+        progressText.textContent = 'Qalereyaya yazılır...';
+
+        // Merge chunks
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        const objectUrl = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = currentTitle + '.mp4';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
+
+        showStatus('✅ Video uğurla endirildi! Qalereyaya baxın.', 'success');
+        progressText.textContent = '✅ Tamamlandı!';
+
+        setTimeout(() => {
+          progressEl.classList.remove('show');
+          fill.style.width = '0%';
+        }, 3000);
+
+      } catch (e) {
+        showStatus('❌ Endirmə xətası: ' + e.message, 'error');
+        progressEl.classList.remove('show');
+      }
+
+      btn.disabled = false;
+      btn.textContent = '⬇️ HD Endir';
+    }
+
+    // ---- Copy link ----
+    async function copyLink() {
+      if (!currentVideoUrl) return;
+      try {
+        await navigator.clipboard.writeText(currentVideoUrl);
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = '✅ Kopyalandı';
+        setTimeout(() => { btn.textContent = '🔗 Link'; }, 2000);
+      } catch (e) {
+        showStatus('Link kopyalana bilmədi', 'error');
+      }
+    }
+
+    // ---- Helpers ----
+    function showStatus(msg, type) {
+      const el = document.getElementById('status');
+      el.className = type;
+      if (type === 'loading') {
+        el.innerHTML = `<div class="spinner"></div> <span>${msg}</span>`;
+      } else {
+        el.textContent = msg;
+      }
+      el.style.display = '';
+    }
+
+    function setFetchLoading(loading) {
+      const btn = document.getElementById('fetch-btn');
+      const txt = document.getElementById('fetch-btn-text');
+      btn.disabled = loading;
+      if (loading) {
+        txt.innerHTML = '<div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;width:16px;height:16px;display:inline-block;vertical-align:middle;margin-right:8px"></div> Axtarılır...';
+      } else {
+        txt.textContent = '🔍 Videonu tap';
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // Enter key support
+    document.getElementById('url-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') fetchVideo();
+    });
+
+    // Auto-detect paste
+    document.getElementById('url-input').addEventListener('paste', (e) => {
+      setTimeout(() => {
+        const val = document.getElementById('url-input').value;
+        if (val.includes('instagram.com')) {
+          setTimeout(() => fetchVideo(), 400);
+        }
+      }, 100);
+    });
+  </script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+
+</body>
+</html>
