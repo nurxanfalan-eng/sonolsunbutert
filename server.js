@@ -225,8 +225,21 @@ async function tryYtDlp(postUrl) {
         };
       }
     } catch (e) {
-      console.log('  yt-dlp failed:', e.message?.slice(0, 80));
-    }
+  console.error("===== YT-DLP ERROR =====");
+  console.error("Message:", e.message);
+
+  if (e.stdout) {
+    console.error("STDOUT:");
+    console.error(e.stdout);
+  }
+
+  if (e.stderr) {
+    console.error("STDERR:");
+    console.error(e.stderr);
+  }
+
+  console.error("========================");
+}
   }
   return null;
 }
